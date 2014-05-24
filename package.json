@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/alvinl/mongo-logger/issues"
   },
-  "homepage": "https://github.com/alvinl/mongo-logger"
+  "homepage": "https://github.com/alvinl/mongo-logger",
+  "dependencies": {
+    "mongoose": "^3.8.11"
+  }
 }
