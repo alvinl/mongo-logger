@@ -4,14 +4,10 @@ var mongoose = require('mongoose'),
 
 module.exports = function (options) {
 
-  // Only attempt to connect if not already connected
-  // to a MongoDB instance
-  if (!mongoose.connection.readyState)
-    mongoose.connect(options.uri);
+  var db            = mongoose.createConnection(options.uri),
+      timeStampOpts = { type: Date, default: Date.now };
 
-  var timeStampOpts = { type: Date, default: Date.now };
-
-  // Set a ttl if passed as an option
+  // Set a TTL if passed as an option
   if (options.expire)
     timeStampOpts.expires = options.expire;
 
@@ -28,11 +24,8 @@ module.exports = function (options) {
 
   });
 
-  var collectionName = (options.collection || 'errors');
-
-  // If a collection with the same name as the one passed in options exists then use it,
-  // otherwise compile a new model.
-  var ErrorLog = (mongoose.models[collectionName]) ? mongoose.models[collectionName] : mongoose.model(collectionName, errorSchema);
+  // Compile model
+  var ErrorLog = db.model(options.collection || 'errors', errorSchema);
 
   return function (err, req, res, next) {
 

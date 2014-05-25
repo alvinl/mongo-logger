@@ -1,6 +1,6 @@
 {
   "name": "mongo-logger",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Middleware that logs errors to MongoDB",
   "main": "index.js",
   "scripts": {

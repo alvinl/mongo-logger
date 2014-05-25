@@ -23,7 +23,7 @@ app.use(mongoLogger({ uri: 'mongodb://localhost:27017/errorDb',
 ```
 
 ## Options
-- `uri` MongoDB uri to connect to. Only required if a connection to a MongoDB instance hasn't already been made, otherwise it will share the same connection.
+- `uri` (Required) MongoDB uri to connect to.
 - `collection` The collection name to save the logs to. (Defaults to `errors`)
 - `expire` TTL to set to the logs. If not set, the logs will never expire.
 
