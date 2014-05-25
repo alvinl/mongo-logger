@@ -1,10 +1,19 @@
 
 var mongoose = require('mongoose'),
-    Schema   = mongoose.Schema;
+    Schema   = mongoose.Schema,
+    isConnected;
 
 module.exports = function (options) {
 
-  mongoose.connect(options.uri);
+  // Only attempt to connect once
+  if (!isConnected)
+    mongoose.connect(options.uri);
+
+  mongoose.connection.once('open', function () {
+
+    isConnected = true;
+
+  });
 
   var timeStampOpts = { type: Date, default: Date.now };
 
@@ -30,13 +39,13 @@ module.exports = function (options) {
 
     // Log error to mongo
     ErrorLog.create({ message: err.message, stack: err.stack, user: req.ip, method: req.method, path: req.path, headers: JSON.stringify(req.headers)}, function (logError) {
-      
-      if (logError) return console.error(logError);
+
+      if (logError) console.error(logError);
+
+      // Call the next middleware regardless of logger status
+      return next(err);
 
     });
-    
-    // Call the next middleware regardless of logger status
-    return next(err);
 
   };
 
