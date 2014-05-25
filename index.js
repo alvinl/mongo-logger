@@ -1,19 +1,13 @@
 
 var mongoose = require('mongoose'),
-    Schema   = mongoose.Schema,
-    isConnected;
+    Schema   = mongoose.Schema;
 
 module.exports = function (options) {
 
-  // Only attempt to connect once
-  if (!isConnected)
+  // Only attempt to connect if not already connected
+  // to a MongoDB instance
+  if (!mongoose.connection.readyState)
     mongoose.connect(options.uri);
-
-  mongoose.connection.once('open', function () {
-
-    isConnected = true;
-
-  });
 
   var timeStampOpts = { type: Date, default: Date.now };
 
@@ -34,7 +28,11 @@ module.exports = function (options) {
 
   });
 
-  var ErrorLog = mongoose.model(options.collection || 'errors', errorSchema);
+  var collectionName = (options.collection || 'errors');
+
+  // If a collection with the same name as the one passed in options exists then use it,
+  // otherwise compile a new model.
+  var ErrorLog = (mongoose.models[collectionName]) ? mongoose.models[collectionName] : mongoose.model(collectionName, errorSchema);
 
   return function (err, req, res, next) {
 
