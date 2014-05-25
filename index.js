@@ -29,7 +29,8 @@ module.exports = function (options) {
     user:      String,
     method:    String,
     path:      String,
-    headers:   String
+    headers:   String,
+    errName:   String
 
   });
 
@@ -38,7 +39,7 @@ module.exports = function (options) {
   return function (err, req, res, next) {
 
     // Log error to mongo
-    ErrorLog.create({ message: err.message, stack: err.stack, user: req.ip, method: req.method, path: req.path, headers: JSON.stringify(req.headers)}, function (logError) {
+    ErrorLog.create({ message: err.message, stack: err.stack, user: req.ip, method: req.method, path: req.path, headers: JSON.stringify(req.headers), errName: err.name}, function (logError) {
 
       if (logError) console.error(logError);
 
