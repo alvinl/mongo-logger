@@ -36,3 +36,4 @@ The following is what a log document consists of
 - `method` The http method (ex. `GET`)
 - `path` The url path where the error came from
 - `headers` The headers of the client
+- `errName` The type of error (`Error`, `TypeError`, etc)

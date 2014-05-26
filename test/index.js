@@ -2,9 +2,43 @@
 var mongoose = require('mongoose'),
     request = require('supertest'),
     express = require('express'),
-    should  = require('should');
+    should  = require('should'),
+    Schema  = mongoose.Schema;
+
+var default_collection,
+    custom_collection,
+    ttl_collection;
 
 describe('mongo-logger', function () {
+
+  before(function (done) {
+  
+    var db = mongoose.createConnection(process.env.DB);
+
+    var errorSchema = new Schema({
+
+      timeStamp: Date,
+      message:   String,
+      stack:     String,
+      user:      String,
+      method:    String,
+      path:      String,
+      headers:   String,
+      errName:   String
+
+    });
+
+    default_collection = db.model('errors', errorSchema);
+    custom_collection  = db.model('test_errors', errorSchema);
+    ttl_collection     = db.model('errors_ttl', errorSchema);
+
+    db.once('open', function () {
+
+      return done();
+
+    });
+
+  });
   
   it('Should log errors to the default collection name (errors)', function (done) {
     
@@ -28,14 +62,15 @@ describe('mongo-logger', function () {
       .end(function (err) {
 
         should.not.exist(err);
-        
-        mongoose.models.errors.find().exec(function (err, errDocs) {
-          
-          should.not.exist(err);
-          should.exist(errDocs);
-          return done();
 
-        });
+        default_collection
+          .find(function (err, errDocs) {
+            
+            should.not.exist(err);
+            should.exist(errDocs);
+            return done();
+
+          });
 
       });
 
@@ -64,14 +99,15 @@ describe('mongo-logger', function () {
       .end(function (err) {
 
         should.not.exist(err);
-        
-        mongoose.models['test_errors'].find().exec(function (err, errDocs) {
 
-          should.not.exist(err);
-          should.exist(errDocs);
-          return done();
+        custom_collection
+          .find(function (err, errDocs) {
+            
+            should.not.exist(err);
+            should.exist(errDocs);
+            return done();
 
-        });
+          });
 
       });
 
@@ -101,20 +137,22 @@ describe('mongo-logger', function () {
       .end(function (err) {
 
         should.not.exist(err);
-        
-        mongoose.models['errors_ttl'].find().exec(function (err, errDocs) {
 
-          should.not.exist(err);
-          should.exist(errDocs);
-          
-          mongoose.models['errors_ttl'].collection.getIndexes(function (err, indexes) {
+        ttl_collection
+          .find(function (err, errDocs) {
+            
+            should.not.exist(err);
+            should.exist(errDocs);
 
-            indexes.should.have.property('timeStamp_1');
-            return done();
+            ttl_collection.collection.getIndexes(function (err, indexes) {
+              
+              should.not.exist(err);
+              indexes.should.have.property('timeStamp_1');
+              return done();
+
+            });
 
           });
-
-        });
 
       });
 
